@@ -32,14 +32,12 @@ class SimpleLexerTest {
         System.out.println(tokenString);
     }
     @Test
-    void test_simple_lexer_init_and_asign() {
+    void test_simple_lexer_init_and_assign() {
         SimpleLexer lexer = new SimpleLexer();
         String script = "int age = 45;";
         System.out.println("parse :" + script);
         SimpleTokenReader tokenReader = lexer.tokenize(script);
         String tokenString = lexer.dump(tokenReader);
         System.out.println(tokenString);
-        // todo 未识别关键字
-
     }
 }

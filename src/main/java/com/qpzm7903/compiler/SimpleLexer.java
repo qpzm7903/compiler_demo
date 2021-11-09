@@ -58,7 +58,11 @@ public class SimpleLexer {
         }
         DfaState newDfaState = DfaState.Initial;
         if (isAlpha(ch)) {
-            newDfaState = DfaState.Id;
+            if (ch == 'i') {
+                newDfaState = DfaState.Id_int1;
+            } else {
+                newDfaState = DfaState.Id;
+            }
             token.type = TokenType.Identifier;
             tokenText.append(ch);
         } else if (isDigit(ch)) {
@@ -79,7 +83,7 @@ public class SimpleLexer {
 
     /**
      * 解析字符串，形成Token。
-     * 这是一个有限状态自动机，在不同的状态中迁移。
+     * 这是一个有限状态自动机，通过在不同的状态中迁移中，遍历输入，得到token，每个token都有类型。
      *
      * @param code
      * @return
@@ -128,6 +132,39 @@ public class SimpleLexer {
                         break;
                     case SemiColon:
                         state = initToken(ch);
+                        break;
+
+                    case Id_int1:
+                        if (ch == 'n') {
+                            state = DfaState.Id_int2;
+                            tokenText.append(ch);
+                        } else if (isDigit(ch) || isAlpha(ch)) {
+                            state = DfaState.Id;
+                            tokenText.append(ch);
+                        } else {
+                            state = initToken(ch);
+                        }
+                        break;
+                    case Id_int2:
+                        if (ch == 't') {
+                            state = DfaState.Id_int3;
+                            tokenText.append(ch);
+                        } else if (isDigit(ch) || isAlpha(ch)) {
+                            state = DfaState.Id;
+                            tokenText.append(ch);
+                        } else {
+                            state = initToken(ch);
+                        }
+                        break;
+
+                    case Id_int3:
+                        if (isBlank(ch)) {
+                            token.type = TokenType.Int;
+                            state = initToken(ch);
+                        } else {
+                            state = DfaState.Id;
+                            tokenText.append(ch);
+                        }
                         break;
                     default:
 
