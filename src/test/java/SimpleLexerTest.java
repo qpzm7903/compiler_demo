@@ -1,7 +1,6 @@
 import com.qpzm7903.compiler.SimpleLexer;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
 import com.qpzm7903.compiler.support.SimpleTokenReader;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -31,10 +30,21 @@ class SimpleLexerTest {
         String tokenString = lexer.dump(tokenReader);
         System.out.println(tokenString);
     }
+
+    @Test
+    void test_simple_lexer_nit_and_assign() {
+        SimpleLexer lexer = new SimpleLexer();
+        String script = "int age = 45;";
+        System.out.println("parse :" + script);
+        SimpleTokenReader tokenReader = lexer.tokenize(script);
+        String tokenString = lexer.dump(tokenReader);
+        System.out.println(tokenString);
+    }
+
     @Test
     void test_simple_lexer_init_and_assign() {
         SimpleLexer lexer = new SimpleLexer();
-        String script = "int age = 45;";
+        String script = "inta age = 45;";
         System.out.println("parse :" + script);
         SimpleTokenReader tokenReader = lexer.tokenize(script);
         String tokenString = lexer.dump(tokenReader);
