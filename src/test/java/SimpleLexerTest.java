@@ -50,4 +50,34 @@ class SimpleLexerTest {
         String tokenString = lexer.dump(tokenReader);
         System.out.println(tokenString);
     }
+
+    @Test
+    void test_plus() {
+        SimpleLexer lexer = new SimpleLexer();
+        String script = "inta age = 45+10;";
+        System.out.println("parse :" + script);
+        SimpleTokenReader tokenReader = lexer.tokenize(script);
+        String tokenString = lexer.dump(tokenReader);
+        System.out.println(tokenString);
+    }
+
+    @Test
+    void test_plus_and_minus() {
+        SimpleLexer lexer = new SimpleLexer();
+        String script = "inta age = 45+10-100;";
+        System.out.println("parse :" + script);
+        SimpleTokenReader tokenReader = lexer.tokenize(script);
+        String tokenString = lexer.dump(tokenReader);
+        System.out.println(tokenString);
+    }
+
+    @Test
+    void test_plus_minus_slash_star() {
+        SimpleLexer lexer = new SimpleLexer();
+        String script = "int age = 45+10-100*10/13;";
+        System.out.println("parse :" + script);
+        SimpleTokenReader tokenReader = lexer.tokenize(script);
+        String tokenString = lexer.dump(tokenReader);
+        System.out.println(tokenString);
+    }
 }

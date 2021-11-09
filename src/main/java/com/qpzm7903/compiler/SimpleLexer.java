@@ -77,6 +77,22 @@ public class SimpleLexer {
             newDfaState = DfaState.SemiColon;
             token.type = TokenType.SemiColon;
             tokenText.append(ch);
+        } else if (ch == '+') {
+            newDfaState = DfaState.Plus;
+            token.type = TokenType.Plus;
+            tokenText.append(ch);
+        } else if (ch == '-') {
+            newDfaState = DfaState.Minus;
+            token.type = TokenType.Minus;
+            tokenText.append(ch);
+        } else if (ch == '*') {
+            newDfaState = DfaState.Star;
+            token.type = TokenType.Star;
+            tokenText.append(ch);
+        } else if (ch == '/') {
+            newDfaState = DfaState.Slash;
+            token.type = TokenType.Slash;
+            tokenText.append(ch);
         }
         return newDfaState;
     }
@@ -165,6 +181,12 @@ public class SimpleLexer {
                             state = DfaState.Id;
                             tokenText.append(ch);
                         }
+                        break;
+                    case Plus:
+                    case Minus:
+                    case Star:
+                    case Slash:
+                        state = initToken(ch);
                         break;
                     default:
 
