@@ -21,6 +21,7 @@ public class SimpleCalculator {
      */
     int evaluate(String script) throws Exception {
         ASTNode rootNode = parse(script);
+        dumpAST(rootNode, "");
         return evaluate(rootNode, "");
     }
 
@@ -104,23 +105,26 @@ public class SimpleCalculator {
      */
     private SimpleASTNode additiveNode(TokenReader tokens) throws Exception {
         SimpleASTNode child1 = multiplicativeNode(tokens);
-        SimpleASTNode node = child1;
-        Token token = tokens.peek();
-        if (child1 != null && token != null) {
-            if (token.getType() == TokenType.Plus || token.getType() == TokenType.Minus) {
-                token = tokens.read();
-                SimpleASTNode child2 = additiveNode(tokens);
-                if (child2 != null) {
-                    node = new SimpleASTNode(ASTNodeType.Additive, token.getText());
-                    node.addChild(child1);
-                    node.addChild(child2);
+        SimpleASTNode rootNode = child1;
+        if (child1 != null) {
+            while (true) {
+                Token token = tokens.peek();
+                if (token != null && (token.getType() == TokenType.Plus || token.getType() == TokenType.Minus)) {
+                    token = tokens.read();
+                    SimpleASTNode child2 = multiplicativeNode(tokens);
+                    if (child2 != null) {
+                        rootNode = new SimpleASTNode(ASTNodeType.Additive, token.getText());
+                        rootNode.addChild(child1);
+                        rootNode.addChild(child2);
+                        child1 = rootNode;
+                    }
                 } else {
-                    throw new Exception("语法错误，请检查");
+                    break;
                 }
             }
         }
 
-        return node;
+        return rootNode;
     }
 
 
@@ -132,22 +136,25 @@ public class SimpleCalculator {
      */
     private SimpleASTNode multiplicativeNode(TokenReader tokens) throws Exception {
         SimpleASTNode child1 = primaryNode(tokens);
-        SimpleASTNode node = child1;
-        Token peek = tokens.peek();
-        if (child1 != null && peek != null) {
-            if (peek.getType() == TokenType.Slash || peek.getType() == TokenType.Star) {
-                Token token = tokens.read();
-                SimpleASTNode child2 = multiplicativeNode(tokens);
-                if (child2 != null) {
-                    node = new SimpleASTNode(ASTNodeType.Multiplicative, token.getText());
-                    node.addChild(child1);
-                    node.addChild(child2);
+        SimpleASTNode rootNode = child1;
+        if (child1 != null) {
+            while (true) {
+                Token peek = tokens.peek();
+                if (peek != null && (peek.getType() == TokenType.Slash || peek.getType() == TokenType.Star)) {
+                    Token token = tokens.read();
+                    SimpleASTNode child2 = primaryNode(tokens);
+                    if (child2 != null) {
+                        rootNode = new SimpleASTNode(ASTNodeType.Multiplicative, token.getText());
+                        rootNode.addChild(child1);
+                        rootNode.addChild(child2);
+                        child1 = rootNode;
+                    }
                 } else {
-                    throw new Exception("语法有错误，请检查");
+                    break;
                 }
             }
         }
-        return node;
+        return rootNode;
     }
 
     /**
@@ -172,5 +179,17 @@ public class SimpleCalculator {
         return node;
     }
 
+    /**
+     * 打印输出AST的树状结构
+     *
+     * @param node
+     * @param indent 缩进字符，由tab组成，每一级多一个tab
+     */
+    private void dumpAST(ASTNode node, String indent) {
+        System.out.println(indent + node.getType() + " " + node.getText());
+        for (ASTNode child : node.getChildren()) {
+            dumpAST(child, indent + "\t");
+        }
+    }
 
 }

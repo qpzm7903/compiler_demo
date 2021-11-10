@@ -16,6 +16,21 @@ class SimpleCalculatorTest {
         int evaluate = simpleCalculator.evaluate("1+1");
         Assertions.assertThat(evaluate).isEqualTo(2);
     }
+
+    @Test
+    void test_() throws Exception {
+        SimpleCalculator simpleCalculator = new SimpleCalculator();
+        int evaluate = simpleCalculator.evaluate("1+2+3");
+        Assertions.assertThat(evaluate).isEqualTo(6);
+    }
+
+    @Test
+    void test_2() throws Exception {
+        SimpleCalculator simpleCalculator = new SimpleCalculator();
+        int evaluate = simpleCalculator.evaluate("1*2*3");
+        Assertions.assertThat(evaluate).isEqualTo(6);
+    }
+
     @Test
     void test_evaluate_2() throws Exception {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
