@@ -83,5 +83,41 @@ class SimpleCalculatorTest {
         }).withMessage("use variable a before assignment, please assign it");
     }
 
+    @Test
+    void test_calculate_order() {
+        SimpleCalculator simpleCalculator = new SimpleCalculator();
+        int evaluate = simpleCalculator.evaluate("(1+2)*3;");
+        Assertions.assertThat(evaluate).isEqualTo(9);
+    }
+
+    @Test
+    void test_calculate_order_2() {
+        SimpleCalculator simpleCalculator = new SimpleCalculator();
+        int evaluate = simpleCalculator.evaluate("(1+2)*(3-2);");
+        Assertions.assertThat(evaluate).isEqualTo(3);
+    }
+
+    @Test
+    void test_order_and_var() {
+        SimpleCalculator simpleCalculator = new SimpleCalculator();
+        int evaluate = simpleCalculator.evaluate("int a = 10;(a+3)*3;");
+        Assertions.assertThat(evaluate).isEqualTo(39);
+    }
+
+    @Test
+    void test_order_and_var_but_syntax_error() {
+        SimpleCalculator simpleCalculator = new SimpleCalculator();
+        int evaluate = simpleCalculator.evaluate("int a = 10;(a+3)*3;");
+        Assertions.assertThat(evaluate).isEqualTo(39);
+    }
+
+    @Test
+    void test_order_and_var_but_syntax_error_1() {
+        Assertions.assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> {
+            SimpleCalculator simpleCalculator = new SimpleCalculator();
+            int evaluate = simpleCalculator.evaluate("1+2+3");
+            Assertions.assertThat(evaluate).isEqualTo(39);
+        });
+    }
 
 }

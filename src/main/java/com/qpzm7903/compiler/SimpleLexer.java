@@ -97,6 +97,14 @@ public class SimpleLexer {
             newDfaState = DfaState.Assignment;
             token.type = TokenType.Assignment;
             tokenText.append(ch);
+        } else if (ch == '(') {
+            newDfaState = DfaState.LeftParen;
+            token.type = TokenType.LeftParen;
+            tokenText.append(ch);
+        } else if (ch == ')') {
+            newDfaState = DfaState.RightParen;
+            token.type = TokenType.RightParen;
+            tokenText.append(ch);
         }
         return newDfaState;
     }
@@ -147,6 +155,8 @@ public class SimpleLexer {
                     case Slash:
                     case GE:
                     case SemiColon:
+                    case RightParen:
+                    case LeftParen:
                         state = initToken(ch);
                         break;
 
@@ -193,6 +203,7 @@ public class SimpleLexer {
                         break;
 
                     default:
+                        throw new RuntimeException("not support state " + state);
 
                 }
             }

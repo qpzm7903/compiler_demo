@@ -165,7 +165,10 @@ public class SimpleCalculator {
             } else {
                 node = null;
                 // 回溯
+                // TODO 这里会导致死循环， 比如 1+2+3
+                //  因为回溯也解决不了找不到结尾符号的问题
                 tokenReader.setPosition(pos);
+                throw new RuntimeException("except a semicolon but missing.");
             }
 
         }
@@ -175,7 +178,6 @@ public class SimpleCalculator {
     private SimpleASTNode intDeclareNode(TokenReader tokenReader) {
         SimpleASTNode node = null;
         Token token = tokenReader.peek();
-
         if (token != null && token.getType() == TokenType.Int) {
             token = tokenReader.read();
             if (tokenReader.peek() != null && tokenReader.peek().getType() == TokenType.Identifier) {
@@ -282,9 +284,19 @@ public class SimpleCalculator {
             } else if (peek.getType() == TokenType.Identifier) {
                 Token token = tokenReader.read();
                 node = new SimpleASTNode(ASTNodeType.Identifier, token.getText());
+            } else if (peek.getType() == TokenType.LeftParen) {
+                tokenReader.read();
+                node = additiveNode(tokenReader);
+                if (node != null) {
+                    peek = tokenReader.peek();
+                    if (peek != null && peek.getType() == TokenType.RightParen) {
+                        tokenReader.read();
+                    } else {
+                        throw new RuntimeException("missing right paren");
+                    }
+                }
             } else {
-                throw new RuntimeException("语法有问题，请检查");
-
+                throw new RuntimeException("syntax error, not support " + peek);
             }
         }
 
