@@ -17,6 +17,7 @@ public class SimpleToken implements Token {
     public String text = null;
 
 
+
     @Override
     public TokenType getType() {
         return type;
@@ -25,5 +26,18 @@ public class SimpleToken implements Token {
     @Override
     public String getText() {
         return text;
+    }
+
+    @Override
+    public boolean isTypeOf(TokenType tokenType) {
+        return this.type == tokenType;
+    }
+
+    @Override
+    public String toString() {
+        return "SimpleToken{" +
+                "type=" + type +
+                ", text='" + text + '\'' +
+                '}';
     }
 }

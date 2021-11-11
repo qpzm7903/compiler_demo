@@ -2,6 +2,7 @@ package com.qpzm7903.compiler.support;
 
 import com.qpzm7903.compiler.ASTNode;
 import com.qpzm7903.compiler.ASTNodeType;
+import com.qpzm7903.compiler.Token;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +13,7 @@ import java.util.List;
  * 属性包括：类型、文本值、父节点、子节点。
  */
 public class SimpleASTNode implements ASTNode {
-    SimpleASTNode parent = null;
+    ASTNode parent = null;
     List<ASTNode> children = new ArrayList<>();
     List<ASTNode> readonlyChildren = Collections.unmodifiableList(children);
     ASTNodeType nodeType = null;
@@ -30,6 +31,11 @@ public class SimpleASTNode implements ASTNode {
     }
 
     @Override
+    public void setParent(ASTNode child) {
+        this.parent = child;
+    }
+
+    @Override
     public List<ASTNode> getChildren() {
         return readonlyChildren;
     }
@@ -44,9 +50,18 @@ public class SimpleASTNode implements ASTNode {
         return text;
     }
 
-    public void addChild(SimpleASTNode child) {
+
+    @Override
+    public void addChild(ASTNode child) {
         children.add(child);
-        child.parent = this;
+        child.setParent(this);
     }
 
+    @Override
+    public String toString() {
+        return "SimpleASTNode{" +
+                "nodeType=" + nodeType +
+                ", text='" + text + '\'' +
+                '}';
+    }
 }

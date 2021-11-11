@@ -93,6 +93,10 @@ public class SimpleLexer {
             newDfaState = DfaState.Slash;
             token.type = TokenType.Slash;
             tokenText.append(ch);
+        } else if (ch == '=') {
+            newDfaState = DfaState.Assignment;
+            token.type = TokenType.Assignment;
+            tokenText.append(ch);
         }
         return newDfaState;
     }
@@ -136,9 +140,16 @@ public class SimpleLexer {
                             state = initToken(ch);
                         }
                         break;
+                    case Plus:
+                    case Minus:
+                    case Assignment:
+                    case Star:
+                    case Slash:
                     case GE:
+                    case SemiColon:
                         state = initToken(ch);
                         break;
+
                     case IntLiteral:
                         if (isDigit(ch)) {
                             tokenText.append(ch);
@@ -146,9 +157,7 @@ public class SimpleLexer {
                             state = initToken(ch);
                         }
                         break;
-                    case SemiColon:
-                        state = initToken(ch);
-                        break;
+
 
                     case Id_int1:
                         if (ch == 'n') {
@@ -182,12 +191,7 @@ public class SimpleLexer {
                             tokenText.append(ch);
                         }
                         break;
-                    case Plus:
-                    case Minus:
-                    case Star:
-                    case Slash:
-                        state = initToken(ch);
-                        break;
+
                     default:
 
                 }

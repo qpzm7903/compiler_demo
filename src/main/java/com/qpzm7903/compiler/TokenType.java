@@ -24,7 +24,7 @@ public enum TokenType{
     If,
     Else,
 
-    Int,
+    Int, // 关键字
 
     Identifier,     //标识符
 

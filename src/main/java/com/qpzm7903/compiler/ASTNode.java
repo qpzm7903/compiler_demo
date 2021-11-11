@@ -10,8 +10,12 @@ public interface ASTNode{
     //父节点
     ASTNode getParent();
 
+    void setParent(ASTNode child);
+
     //子节点
     List<ASTNode> getChildren();
+
+    void addChild(ASTNode node);
 
     //AST类型
     ASTNodeType getType();

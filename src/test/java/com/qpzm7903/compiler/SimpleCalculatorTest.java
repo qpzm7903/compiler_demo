@@ -11,51 +11,60 @@ import org.junit.jupiter.api.Test;
  */
 class SimpleCalculatorTest {
     @Test
-    void test_evaluate() throws Exception {
+    void test_evaluate() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+1");
+        int evaluate = simpleCalculator.evaluate("1+1;");
         Assertions.assertThat(evaluate).isEqualTo(2);
     }
 
     @Test
-    void test_() throws Exception {
+    void test_() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+2+3");
+        int evaluate = simpleCalculator.evaluate("1+2+3;");
         Assertions.assertThat(evaluate).isEqualTo(6);
     }
 
     @Test
-    void test_2() throws Exception {
+    void test_2() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1*2*3");
+        int evaluate = simpleCalculator.evaluate("1*2*3;");
         Assertions.assertThat(evaluate).isEqualTo(6);
     }
 
     @Test
-    void test_evaluate_2() throws Exception {
+    void test_evaluate_2() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+1*3");
+        int evaluate = simpleCalculator.evaluate("1+1*3;");
         Assertions.assertThat(evaluate).isEqualTo(4);
     }
 
     @Test
-    void test_evaluate_3() throws Exception {
+    void test_evaluate_3() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+1*3+3");
+        int evaluate = simpleCalculator.evaluate("1+1*3+3;");
         Assertions.assertThat(evaluate).isEqualTo(7);
     }
 
     @Test
-    void test_evaluate_4() throws Exception {
+    void test_evaluate_4() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+1*3+3/3");
+        int evaluate = simpleCalculator.evaluate("1+1*3+3/3;");
         Assertions.assertThat(evaluate).isEqualTo(5);
     }
 
     @Test
-    void test_evaluate_5() throws Exception {
+    void test_evaluate_5() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+1*3+3/3-1");
+        int evaluate = simpleCalculator.evaluate("1+1*3+3/3-1;");
         Assertions.assertThat(evaluate).isEqualTo(4);
     }
+
+    @Test
+    void test_assign() {
+
+        SimpleCalculator simpleCalculator = new SimpleCalculator();
+        int evaluate = simpleCalculator.evaluate("int a = 10;");
+        Assertions.assertThat(evaluate).isEqualTo(10);
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.qpzm7903.compiler;
 
 import com.qpzm7903.compiler.support.SimpleASTNode;
+import com.qpzm7903.compiler.support.SimpleToken;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -13,19 +15,20 @@ import java.util.Objects;
  * 递归项在右边，会自然的对应右结合。我们真正需要的是左结合。
  */
 public class SimpleCalculator {
+    private HashMap<String, Integer> variables = new HashMap<String, Integer>();
 
     /**
      * 执行脚本，并打印输出AST和求值过程。
      *
      * @param script
      */
-    int evaluate(String script) throws Exception {
+    int evaluate(String script) {
         ASTNode rootNode = parse(script);
         dumpAST(rootNode, "");
         return evaluate(rootNode, "");
     }
 
-    private int evaluate(ASTNode node, String indent) throws Exception {
+    private int evaluate(ASTNode node, String indent) {
         int result = 0;
         System.out.println(indent + "Calculating: " + node.getType());
         switch (node.getType()) {
@@ -59,8 +62,20 @@ public class SimpleCalculator {
             case IntLiteral:
                 result = Integer.parseInt(node.getText());
                 break;
+            case IntDeclaration:
+                String varName = node.getText();
+                Integer value = null;
+                if (node.getChildren().size() > 0) {
+                    ASTNode child = node.getChildren().get(0);
+                    value = evaluate(child, indent + "\t");
+                    value = Integer.valueOf(value);
+                    result = value;
+
+                }
+                variables.put(varName, value);
+                break;
             default:
-                throw new Exception("not support node type " + node.getType());
+                throw new RuntimeException("not support node type " + node.getType());
         }
         System.out.println(indent + "Result: " + result);
         return result;
@@ -73,7 +88,7 @@ public class SimpleCalculator {
      * @return
      * @throws Exception
      */
-    public ASTNode parse(String code) throws Exception {
+    public ASTNode parse(String code) {
         SimpleLexer lexer = new SimpleLexer();
         TokenReader tokens = lexer.tokenize(code);
         return programNode(tokens);
@@ -86,14 +101,100 @@ public class SimpleCalculator {
      * @throws Exception
      */
 
-    private SimpleASTNode programNode(TokenReader tokens) throws Exception {
+    private SimpleASTNode programNode(TokenReader tokens) {
         SimpleASTNode node = new SimpleASTNode(ASTNodeType.Programm, "Calculator");
 
-        SimpleASTNode child = additiveNode(tokens);
-
-        if (child != null) {
-            node.addChild(child);
+        while (tokens.peek() != null) {
+            SimpleASTNode child = intDeclareNode(tokens);
+            if (child == null) {
+                child = expressionStatement(tokens);
+            }
+            if (child == null) {
+                child = assignmentStatement(tokens);
+            }
+            if (child != null) {
+                node.addChild(child);
+            }
         }
+        return node;
+    }
+
+    private SimpleASTNode assignmentStatement(TokenReader tokenReader) {
+        Token peek = tokenReader.peek();
+        if (peek != null && peek.isTypeOf(TokenType.Identifier)) {
+            Token idToken = tokenReader.read();
+            SimpleASTNode assignNode = new SimpleASTNode(ASTNodeType.AssignmentStmt, idToken.getText());
+            peek = tokenReader.peek();
+            if (peek != null && peek.isTypeOf(TokenType.Assignment)) {
+                Token assignmentToken = tokenReader.read();
+                SimpleASTNode additiveNode = additiveNode(tokenReader);
+                if (additiveNode == null) {
+                    throw new RuntimeException("invalid assignment, excepting an expression");
+                } else {
+                    assignNode.addChild(additiveNode);
+                    peek = tokenReader.peek();
+                    if (peek != null && peek.isTypeOf(TokenType.SemiColon)) {
+                        tokenReader.read();
+                        return assignNode;
+                    } else {
+                        throw new RuntimeException("missing a semicolon in assignment statement");
+                    }
+                }
+            } else {
+                tokenReader.unread();
+            }
+        }
+        return null;
+    }
+
+    private SimpleASTNode expressionStatement(TokenReader tokenReader) {
+        int pos = tokenReader.getPosition();
+        SimpleASTNode node = additiveNode(tokenReader);
+        if (node != null) {
+            Token read = tokenReader.peek();
+            if (read != null && read.isTypeOf(TokenType.SemiColon)) {
+                tokenReader.read();
+            } else {
+                node = null;
+                // 回溯
+                tokenReader.setPosition(pos);
+            }
+
+        }
+        return node; // TODO 这里简化了？ 因为直接返回的是加法，不是表达式
+    }
+
+    private SimpleASTNode intDeclareNode(TokenReader tokenReader) {
+        SimpleASTNode node = null;
+        Token token = tokenReader.peek();
+
+        if (token != null && token.getType() == TokenType.Int) {
+            token = tokenReader.read();
+            if (tokenReader.peek() != null && tokenReader.peek().getType() == TokenType.Identifier) {
+                token = tokenReader.read();
+                node = new SimpleASTNode(ASTNodeType.IntDeclaration, token.getText());
+                token = tokenReader.peek();
+                if (token != null && token.getType() == TokenType.Assignment) {
+                    token = tokenReader.read();
+                    SimpleASTNode child = additiveNode(tokenReader);
+                    if (child == null) {
+                        throw new RuntimeException("int declare statement error");
+                    } else {
+                        node.addChild(child);
+
+                    }
+                }
+            } else {
+                throw new RuntimeException("int declare statement error");
+            }
+            token = tokenReader.peek();
+            if (token != null && token.getType() == TokenType.SemiColon) {
+                tokenReader.read();
+            } else {
+                throw new RuntimeException("missing semiColon in int declare");
+            }
+        }
+
         return node;
     }
 
@@ -103,7 +204,7 @@ public class SimpleCalculator {
      * @return
      * @throws Exception
      */
-    private SimpleASTNode additiveNode(TokenReader tokens) throws Exception {
+    private SimpleASTNode additiveNode(TokenReader tokens) {
         SimpleASTNode child1 = multiplicativeNode(tokens);
         SimpleASTNode rootNode = child1;
         if (child1 != null) {
@@ -134,7 +235,7 @@ public class SimpleCalculator {
      * @return
      * @throws Exception
      */
-    private SimpleASTNode multiplicativeNode(TokenReader tokens) throws Exception {
+    private SimpleASTNode multiplicativeNode(TokenReader tokens) {
         SimpleASTNode child1 = primaryNode(tokens);
         SimpleASTNode rootNode = child1;
         if (child1 != null) {
@@ -161,9 +262,8 @@ public class SimpleCalculator {
      * 语法解析：基础表达式
      *
      * @return
-     * @throws Exception
      */
-    private SimpleASTNode primaryNode(TokenReader tokens) throws Exception {
+    private SimpleASTNode primaryNode(TokenReader tokens) {
         SimpleASTNode node = null;
         Token peek = tokens.peek();
 
@@ -172,7 +272,8 @@ public class SimpleCalculator {
                 Token token = tokens.read();
                 node = new SimpleASTNode(ASTNodeType.IntLiteral, token.getText());
             } else {
-                throw new Exception("语法有问题，请检查");
+                throw new RuntimeException("语法有问题，请检查");
+
             }
         }
 

@@ -17,5 +17,5 @@ public enum ASTNodeType {
     Additive,           //加法表达式
 
     Identifier,         //标识符
-    IntLiteral          //整型字面量
+    IntLiteral;//整型字面量
 }

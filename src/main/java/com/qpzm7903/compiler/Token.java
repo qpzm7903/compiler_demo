@@ -18,4 +18,6 @@ public interface Token{
      */
     public String getText();
 
+    boolean isTypeOf(TokenType tokenType);
+
 }
