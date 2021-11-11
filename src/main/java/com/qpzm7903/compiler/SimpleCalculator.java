@@ -74,6 +74,14 @@ public class SimpleCalculator {
                 }
                 variables.put(varName, value);
                 break;
+            case Identifier:
+                varName = node.getText();
+                if (variables.containsKey(varName)) {
+                    result = variables.get(varName);
+                } else {
+                    throw new RuntimeException("use variable " + varName + " before assignment, please assign it");
+                }
+                break;
             default:
                 throw new RuntimeException("not support node type " + node.getType());
         }
@@ -263,14 +271,17 @@ public class SimpleCalculator {
      *
      * @return
      */
-    private SimpleASTNode primaryNode(TokenReader tokens) {
+    private SimpleASTNode primaryNode(TokenReader tokenReader) {
         SimpleASTNode node = null;
-        Token peek = tokens.peek();
+        Token peek = tokenReader.peek();
 
         if (peek != null) {
             if (peek.getType() == TokenType.IntLiteral) {
-                Token token = tokens.read();
+                Token token = tokenReader.read();
                 node = new SimpleASTNode(ASTNodeType.IntLiteral, token.getText());
+            } else if (peek.getType() == TokenType.Identifier) {
+                Token token = tokenReader.read();
+                node = new SimpleASTNode(ASTNodeType.Identifier, token.getText());
             } else {
                 throw new RuntimeException("语法有问题，请检查");
 

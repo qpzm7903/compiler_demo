@@ -67,4 +67,21 @@ class SimpleCalculatorTest {
         Assertions.assertThat(evaluate).isEqualTo(10);
     }
 
+    @Test
+    void test_assign_to_var_and_add_a_var() {
+        SimpleCalculator simpleCalculator = new SimpleCalculator();
+        int evaluate = simpleCalculator.evaluate("int a = 10;a+10;");
+        Assertions.assertThat(evaluate).isEqualTo(20);
+    }
+
+    @Test
+    void test_use_a_var_before_assign() {
+
+        Assertions.assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> {
+            SimpleCalculator simpleCalculator = new SimpleCalculator();
+            simpleCalculator.evaluate("a+10;");
+        }).withMessage("use variable a before assignment, please assign it");
+    }
+
+
 }
