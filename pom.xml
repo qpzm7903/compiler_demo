@@ -80,11 +80,11 @@
                 </executions>
                 <configuration>
                     <!--                    指定导入语法和标记文件的位置-->
-                    <libDirectory>src//main/antlr4/imports</libDirectory>
+                    <libDirectory>src/main/antlr4/imports</libDirectory>
                     <!--                    ANTLR4语法文件 *.g4 所在的目录-->
-                    <sourceDirectory>src/main/antlr4</sourceDirectory>
+                    <sourceDirectory>src/main/antlr4/imports</sourceDirectory>
                     <!--                    指定Java文件输出的目录-->
-                    <outputDirectory>src/main/java</outputDirectory>
+                    <outputDirectory>src/main/java/com/qpzm7903/compiler/grammar</outputDirectory>
 
                     <listener>true</listener>
                     <visitor>true</visitor>
