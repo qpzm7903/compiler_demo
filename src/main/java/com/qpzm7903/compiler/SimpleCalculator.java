@@ -1,7 +1,12 @@
 package com.qpzm7903.compiler;
 
+import com.qpzm7903.compiler.antlr4.PlayScriptLexer;
+import com.qpzm7903.compiler.antlr4.PlayScriptParser;
 import com.qpzm7903.compiler.support.SimpleASTNode;
-import com.qpzm7903.compiler.support.SimpleToken;
+import com.qpzm7903.compiler.visitor.SimpleVisitor;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -23,9 +28,20 @@ public class SimpleCalculator {
      * @param script
      */
     int evaluate(String script) {
-        ASTNode rootNode = parse(script);
-        dumpAST(rootNode, "");
-        return evaluate(rootNode, "");
+        ANTLRInputStream input = new ANTLRInputStream(script);
+        Object compile = compile(input);
+        return (int) compile;
+//        ASTNode rootNode = parse(script);
+//        dumpAST(rootNode, "");
+//        return evaluate(rootNode, "");
+    }
+
+    public static Object compile(ANTLRInputStream input) {
+        PlayScriptLexer lexer = new PlayScriptLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        PlayScriptParser parser = new PlayScriptParser(tokens);
+        ParseTree tree = parser.expression();
+        return new SimpleVisitor().visit(tree);
     }
 
     private int evaluate(ASTNode node, String indent) {

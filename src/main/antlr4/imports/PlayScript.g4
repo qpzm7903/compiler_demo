@@ -41,6 +41,10 @@ grammar PlayScript;
 //options { tokenVocab=CommonLexer; }
 import CommonLexer;
 
+@header{
+package com.qpzm7903.compiler.antlr4;
+}
+
 classDeclaration
     : CLASS IDENTIFIER
       (EXTENDS typeType)?
