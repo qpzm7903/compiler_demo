@@ -51,11 +51,22 @@ public class ParserDemo {
         PlayScriptLexer lexer = new PlayScriptLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PlayScriptParser parser = new PlayScriptParser(tokens);
+        ParseTree tree = parser.prog();
+        Object visit = new SimpleVisitor().visit(tree);
+        System.out.println(visit);
 
-        ParseTreeWalker parseTreeWalker = new ParseTreeWalker();
+
+    }
+
+    @Test
+    void test_2() {
+        String script = "1+2";
+        ANTLRInputStream input = new ANTLRInputStream(script);
+        PlayScriptLexer lexer = new PlayScriptLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        PlayScriptParser parser = new PlayScriptParser(tokens);
         ParseTree tree = parser.expression();
-        parseTreeWalker.walk(new PlayScriptBaseListener(),tree);
-        System.out.println(tree);
+
 
     }
 }

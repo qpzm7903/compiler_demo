@@ -13,50 +13,49 @@ class SimpleCalculatorTest {
     @Test
     void test_evaluate() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        // todo 不知道为什么不能加分号结尾，提示不需要分号
-        int evaluate = simpleCalculator.evaluate("1+1");
+        int evaluate = simpleCalculator.evaluate("1+1;");
         Assertions.assertThat(evaluate).isEqualTo(2);
     }
 
     @Test
     void test_() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+2+3");
+        int evaluate = simpleCalculator.evaluate("1+2+3;");
         Assertions.assertThat(evaluate).isEqualTo(6);
     }
 
     @Test
     void test_2() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1*2*3");
+        int evaluate = simpleCalculator.evaluate("1*2*3;");
         Assertions.assertThat(evaluate).isEqualTo(6);
     }
 
     @Test
     void test_evaluate_2() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+1*3");
+        int evaluate = simpleCalculator.evaluate("1+1*3;");
         Assertions.assertThat(evaluate).isEqualTo(4);
     }
 
     @Test
     void test_evaluate_3() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+1*3+3");
+        int evaluate = simpleCalculator.evaluate("1+1*3+3;");
         Assertions.assertThat(evaluate).isEqualTo(7);
     }
 
     @Test
     void test_evaluate_4() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+1*3+3/3");
+        int evaluate = simpleCalculator.evaluate("1+1*3+3/3;");
         Assertions.assertThat(evaluate).isEqualTo(5);
     }
 
     @Test
     void test_evaluate_5() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("1+1*3+3/3-1");
+        int evaluate = simpleCalculator.evaluate("1+1*3+3/3-1;");
         Assertions.assertThat(evaluate).isEqualTo(4);
     }
 
@@ -80,20 +79,20 @@ class SimpleCalculatorTest {
         Assertions.assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> {
             SimpleCalculator simpleCalculator = new SimpleCalculator();
             simpleCalculator.evaluate("a+10;");
-        }).withMessage("use variable a before assignment, please assign it");
+        });
     }
 
     @Test
     void test_calculate_order() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("(1+2)*3");
+        int evaluate = simpleCalculator.evaluate("(1+2)*3;");
         Assertions.assertThat(evaluate).isEqualTo(9);
     }
 
     @Test
     void test_calculate_order_2() {
         SimpleCalculator simpleCalculator = new SimpleCalculator();
-        int evaluate = simpleCalculator.evaluate("(1+2)*(3-2)");
+        int evaluate = simpleCalculator.evaluate("(1+2)*(3-2);");
         Assertions.assertThat(evaluate).isEqualTo(3);
     }
 
@@ -113,11 +112,10 @@ class SimpleCalculatorTest {
 
     @Test
     void test_order_and_var_but_syntax_error_1() {
-        Assertions.assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> {
-            SimpleCalculator simpleCalculator = new SimpleCalculator();
-            int evaluate = simpleCalculator.evaluate("1+2+3");
-            Assertions.assertThat(evaluate).isEqualTo(39);
-        });
+        SimpleCalculator simpleCalculator = new SimpleCalculator();
+        int evaluate = simpleCalculator.evaluate("1+2+3;");
+        Assertions.assertThat(evaluate).isEqualTo(6);
+
     }
 
 }

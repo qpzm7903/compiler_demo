@@ -40,7 +40,7 @@ public class SimpleCalculator {
         PlayScriptLexer lexer = new PlayScriptLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PlayScriptParser parser = new PlayScriptParser(tokens);
-        ParseTree tree = parser.expression();
+        ParseTree tree = parser.prog();
         return new SimpleVisitor().visit(tree);
     }
 
