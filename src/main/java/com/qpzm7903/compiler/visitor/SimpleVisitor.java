@@ -19,6 +19,65 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
 
     @Override
     public Object visitStatement(PlayScriptParser.StatementContext ctx) {
+        if (!Objects.isNull(ctx.statementExpression)) {
+            return visitExpression(ctx.expression());
+        } else if (!Objects.isNull(ctx.IF())) {
+            Boolean condition = (Boolean) visitParExpression(ctx.parExpression());
+            if (condition) {
+                return visitStatement(ctx.statement(0));
+            } else if (!Objects.isNull(ctx.statement(0))) {
+                return visitStatement(ctx.statement(1));
+            }
+        } else if (!Objects.isNull(ctx.FOR())) {
+            PlayScriptParser.ForControlContext forControlContext = ctx.forControl();
+            PlayScriptParser.ForInitContext forInitContext = forControlContext.forInit();
+            if (forInitContext != null) {
+                Object o = visitForInit(forInitContext);
+            }
+            Object result = null;
+            while (true) {
+                if (forControlContext.expression() != null) {
+                    Boolean condition = (Boolean) visitExpression(forControlContext.expression());
+                    if (condition) {
+                        result = visitStatement(ctx.statement(0));
+                        if (forControlContext.forUpdate != null) {
+                            visitExpressionList(forControlContext.forUpdate);
+                        }
+                    } else {
+                        break;
+                    }
+
+                }
+            }
+            return result;
+        } else if (ctx.WHILE() != null) {
+            if (ctx.parExpression().expression() != null && ctx.statement(0) != null) {
+                Object result = null;
+                while (true) {
+                    Boolean condition = (Boolean) visitExpression(ctx.parExpression().expression());
+                    if (condition) {
+                        result = visitStatement(ctx.statement(0));
+                    } else {
+                        break;
+
+                    }
+                }
+                return result;
+            }
+        }
+        if (!Objects.isNull(ctx.block())) {
+            return visitBlock(ctx.block());
+        }
+        return visitExpression(ctx.expression());
+    }
+
+    @Override
+    public Object visitBlock(PlayScriptParser.BlockContext ctx) {
+        return visitBlockStatements(ctx.blockStatements());
+    }
+
+    @Override
+    public Object visitParExpression(PlayScriptParser.ParExpressionContext ctx) {
         return visitExpression(ctx.expression());
     }
 
@@ -91,7 +150,7 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
     @Override
     public Object visitPrimary(PlayScriptParser.PrimaryContext context) {
         System.out.println(context);
-        if (!Objects.isNull(context.IDENTIFIER())){
+        if (!Objects.isNull(context.IDENTIFIER())) {
             return variableMap.get(context.IDENTIFIER().getText());
         }
         if (context.children.size() >= 3) {
@@ -99,6 +158,7 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
         }
         return super.visitPrimary(context);
     }
+
 
     @Override
     public Object visitExpression(PlayScriptParser.ExpressionContext ctx) {
@@ -120,9 +180,66 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
                     left = this.visitExpression(ctx.expression(0));
                     right = this.visitExpression(ctx.expression(1));
                     return ((int) (left)) - (int) (right);
+                case PlayScriptParser.GT:
+                    left = this.visitExpression(ctx.expression(0));
+                    right = this.visitExpression(ctx.expression(1));
+                    return ((int) (left)) > (int) (right);
+                case PlayScriptParser.LT:
+                    left = this.visitExpression(ctx.expression(0));
+                    right = this.visitExpression(ctx.expression(1));
+                    return ((int) (left)) < (int) (right);
+                case PlayScriptParser.LE:
+                    left = this.visitExpression(ctx.expression(0));
+                    right = this.visitExpression(ctx.expression(1));
+                    return ((int) (left)) <= (int) (right);
+                case PlayScriptParser.GE:
+                    left = this.visitExpression(ctx.expression(0));
+                    right = this.visitExpression(ctx.expression(1));
+                    return ((int) (left)) >= (int) (right);
+                case PlayScriptParser.EQUAL:
+                    left = this.visitExpression(ctx.expression(0));
+                    right = this.visitExpression(ctx.expression(1));
+                    return ((int) (left)) == (int) (right);
+                case PlayScriptParser.NOTEQUAL:
+                    left = this.visitExpression(ctx.expression(0));
+                    right = this.visitExpression(ctx.expression(1));
+                    return ((int) (left)) != (int) (right);
+                case PlayScriptParser.ASSIGN:
+                    String variableName = ctx.expression(0).primary().IDENTIFIER().getText();
+                    right = this.visitExpression(ctx.expression(1));
+                    variableMap.put(variableName, right);
+                    return right;
+                case PlayScriptParser.ADD_ASSIGN:
+                    variableName = ctx.expression(0).primary().IDENTIFIER().getText();
+                    Integer value = (Integer) variableMap.get(variableName);
+                    right = this.visitExpression(ctx.expression(1));
+                    variableMap.put(variableName, value + (Integer) right);
+
+                    return variableMap.get(variableName);
+
+                case PlayScriptParser.INC:
+                    variableName = ctx.expression(0).primary().IDENTIFIER().getText();
+                    value = (Integer) variableMap.get(variableName);
+                    variableMap.put(variableName, value + 1);
+                    return variableMap.get(variableName);
                 default:
                     throw new RuntimeException("not support for " + ctx.bop.getType());
             }
+        }
+        if (!Objects.isNull(ctx.postfix)) {
+            switch (ctx.postfix.getType()) {
+                case PlayScriptParser.INC:
+                    String variableName = ctx.expression(0).primary().IDENTIFIER().getText();
+                    Integer value = (Integer) variableMap.get(variableName);
+                    variableMap.put(variableName, value + 1);
+                    return variableMap.get(variableName);
+                case PlayScriptParser.DEC:
+                    variableName = ctx.expression(0).primary().IDENTIFIER().getText();
+                    value = (Integer) variableMap.get(variableName);
+                    variableMap.put(variableName, value - 1);
+                    return variableMap.get(variableName);
+            }
+
         }
         return super.visitExpression(ctx);
     }

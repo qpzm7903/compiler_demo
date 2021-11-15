@@ -37,9 +37,9 @@
 */
 
 lexer grammar CommonLexer;
-@header{
-package com.qpzm7903.compiler.antlr4;
-}
+// @header{
+// package com.qpzm7903.compiler.antlr4;
+// }
 // Keywords
 
 ABSTRACT:           'abstract';

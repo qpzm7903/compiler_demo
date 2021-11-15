@@ -2,8 +2,6 @@
 
 package com.qpzm7903.compiler.antlr4;
 
-
-
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 

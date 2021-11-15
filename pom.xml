@@ -85,6 +85,7 @@
                     <sourceDirectory>src/main/antlr4/imports</sourceDirectory>
                     <!--                    指定Java文件输出的目录-->
                     <outputDirectory>src/main/java/com/qpzm7903/compiler/antlr4</outputDirectory>
+<!--                    <outputDirectory>src/main/java/com/qpzm7903/compiler/antlr4</outputDirectory>-->
 
                     <listener>true</listener>
                     <visitor>true</visitor>

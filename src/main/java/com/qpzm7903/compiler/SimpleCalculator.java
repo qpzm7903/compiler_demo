@@ -27,10 +27,9 @@ public class SimpleCalculator {
      *
      * @param script
      */
-    int evaluate(String script) {
+    Object evaluate(String script) {
         ANTLRInputStream input = new ANTLRInputStream(script);
-        Object compile = compile(input);
-        return (int) compile;
+        return compile(input);
 //        ASTNode rootNode = parse(script);
 //        dumpAST(rootNode, "");
 //        return evaluate(rootNode, "");
