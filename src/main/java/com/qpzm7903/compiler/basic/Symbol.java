@@ -1,5 +1,6 @@
 package com.qpzm7903.compiler.basic;
 
+import lombok.Data;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 /**
@@ -8,6 +9,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
  * @author qpzm7903
  * @since 2021-11-16-7:50
  */
+@Data
 public class Symbol {
 
     /**

@@ -3,13 +3,12 @@ package com.qpzm7903.compiler.visitor;
 import com.qpzm7903.compiler.antlr4.PlayScriptBaseVisitor;
 import com.qpzm7903.compiler.antlr4.PlayScriptParser;
 import com.qpzm7903.compiler.basic.BlockScope;
+import com.qpzm7903.compiler.basic.Function;
+import com.qpzm7903.compiler.basic.Scope;
 import com.qpzm7903.compiler.basic.StackFrame;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * todo description
@@ -20,6 +19,7 @@ import java.util.Stack;
 public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
     Map<String, Object> variableMap = new HashMap<>();
     private final Stack<StackFrame> stack = new Stack<>();
+    private final Map<String, Function> functionMap = new HashMap<>();
 
     private void push(StackFrame frame) {
         if (stack.size() > 0) {
@@ -143,6 +143,9 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
         if (!Objects.isNull(ctx.variableDeclarators())) {
             result = visitVariableDeclarators(ctx.variableDeclarators());
             return result;
+        }
+        if (ctx.statement() != null) {
+            return visitStatement(ctx.statement());
         }
         System.out.println();
         return super.visitBlockStatement(ctx);
@@ -297,6 +300,9 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
             }
 
         }
+        if (ctx.functionCall() != null) {
+            return visitFunctionCall(ctx.functionCall());
+        }
         return super.visitExpression(ctx);
     }
 
@@ -318,4 +324,52 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
         }
         return result;
     }
+
+    @Override
+    public Object visitFunctionDeclaration(PlayScriptParser.FunctionDeclarationContext ctx) {
+        PlayScriptParser.FunctionBodyContext functionBodyContext = ctx.functionBody();
+        PlayScriptParser.FormalParametersContext formalParametersContext = ctx.formalParameters();
+        PlayScriptParser.TypeTypeOrVoidContext typeTypeOrVoidContext = ctx.typeTypeOrVoid();
+        String functionName = ctx.IDENTIFIER().getText();
+        Function function = new Function(functionName, currentScope(), ctx);
+        functionMap.put(functionName, function);
+
+        return null;
+    }
+
+    @Override
+    public Object visitFunctionCall(PlayScriptParser.FunctionCallContext ctx) {
+        StackFrame stackFrame = new StackFrame(new BlockScope(null, ctx));
+        push(stackFrame);
+        TerminalNode functionName = ctx.IDENTIFIER();
+        Function function = functionMap.get(functionName.getText());
+        List<PlayScriptParser.ExpressionContext> expression = ctx.expressionList().expression();
+        List<Object> paramValues = new LinkedList<>();
+        for (PlayScriptParser.ExpressionContext expressionContext : expression) {
+            Object value = visitExpression(expressionContext);
+            paramValues.add(value);
+        }
+        PlayScriptParser.FunctionDeclarationContext context = (PlayScriptParser.FunctionDeclarationContext) function.getContext();
+
+        for (int i = 0; i < context.formalParameters().formalParameterList().formalParameter().size(); i++) {
+            PlayScriptParser.FormalParameterContext formalParameterContext = context.formalParameters().formalParameterList().formalParameter(i);
+            String varName = (String) visitVariableDeclaratorId(formalParameterContext.variableDeclaratorId());
+            Object varValue = paramValues.get(i);
+            putVariable(varValue, varName);
+        }
+
+        Object value = visitBlockStatements(context.functionBody().block().blockStatements());
+
+        pop();
+
+        return value;
+    }
+
+    private Scope currentScope() {
+        if (stack.size() > 0) {
+            return stack.peek().getScope();
+        }
+        return null;
+    }
+
 }

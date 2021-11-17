@@ -156,4 +156,22 @@ public class StatementTest {
         }
     }
 
+    @Nested
+    class TestFunction {
+
+        @Test
+        void test_simple_function() {
+            String script = "int myfunc(int a) {return a+3;} myfunc(2);";
+            Object evaluate = simpleCalculator.evaluate(script);
+            Assertions.assertThat(evaluate).isEqualTo(5);
+        }
+
+        @Test
+        void test_simple_function_and_outside_scope() {
+            String script = "int b = 10;int myfunc(int a) {return a+3 + b;} myfunc(2);";
+            Object evaluate = simpleCalculator.evaluate(script);
+            Assertions.assertThat(evaluate).isEqualTo(15);
+        }
+    }
+
 }
