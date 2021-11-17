@@ -2,11 +2,14 @@ package com.qpzm7903.compiler.visitor;
 
 import com.qpzm7903.compiler.antlr4.PlayScriptBaseVisitor;
 import com.qpzm7903.compiler.antlr4.PlayScriptParser;
+import com.qpzm7903.compiler.basic.BlockScope;
+import com.qpzm7903.compiler.basic.StackFrame;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Stack;
 
 /**
  * todo description
@@ -16,6 +19,52 @@ import java.util.Objects;
  */
 public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
     Map<String, Object> variableMap = new HashMap<>();
+    private final Stack<StackFrame> stack = new Stack<>();
+
+    private void push(StackFrame frame) {
+        if (stack.size() > 0) {
+            for (StackFrame stackFrame : stack) {
+                if (stackFrame.getScope().getScope() == frame.getScope().getScope()) {
+                    frame.setParentFrame(stackFrame.getParentFrame());
+                    break;
+                } else if (stackFrame.getScope() == frame.getScope().getScope()) {
+                    frame.setParentFrame(stackFrame);
+                    break;
+                }
+            }
+            if (frame.getParentFrame() == null) {
+                frame.setParentFrame(this.stack.peek());
+            }
+        }
+        this.stack.push(frame);
+    }
+
+    void pop() {
+        this.stack.pop();
+    }
+
+    private void putVariable(Object result, String variableName) {
+        StackFrame stackFrame = stack.peek();
+        while (stackFrame != null) {
+            if (stackFrame.getVariables().containsKey(variableName)) {
+                stackFrame.getVariables().put(variableName, result);
+                return;
+            }
+            stackFrame = stackFrame.getParentFrame();
+        }
+        stack.peek().getVariables().put(variableName, result);
+    }
+
+    private Object getVariableValue(String variableName) {
+        StackFrame stackFrame = stack.peek();
+        while (stackFrame != null) {
+            if (stackFrame.getVariables().containsKey(variableName)) {
+                return stackFrame.getVariables().get(variableName);
+            }
+            stackFrame = stackFrame.getParentFrame();
+        }
+        throw new RuntimeException("can not found the variable of " + variableName);
+    }
 
     @Override
     public Object visitStatement(PlayScriptParser.StatementContext ctx) {
@@ -29,6 +78,7 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
                 return visitStatement(ctx.statement(1));
             }
         } else if (!Objects.isNull(ctx.FOR())) {
+            push(new StackFrame(new BlockScope(null, ctx)));
             PlayScriptParser.ForControlContext forControlContext = ctx.forControl();
             PlayScriptParser.ForInitContext forInitContext = forControlContext.forInit();
             if (forInitContext != null) {
@@ -49,6 +99,7 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
 
                 }
             }
+            pop();
             return result;
         } else if (ctx.WHILE() != null) {
             if (ctx.parExpression().expression() != null && ctx.statement(0) != null) {
@@ -73,7 +124,12 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
 
     @Override
     public Object visitBlock(PlayScriptParser.BlockContext ctx) {
-        return visitBlockStatements(ctx.blockStatements());
+
+        StackFrame stackFrame = new StackFrame(new BlockScope(null, ctx));
+        push(stackFrame);
+        Object result = visitBlockStatements(ctx.blockStatements());
+        pop();
+        return result;
     }
 
     @Override
@@ -117,7 +173,7 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
         if (!Objects.isNull(ctx.variableInitializer())) {
             result = visitVariableInitializer(ctx.variableInitializer());
         }
-        variableMap.put(variableName, result);
+        putVariable(result, variableName);
         System.out.println(ctx);
         return result;
     }
@@ -151,7 +207,7 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
     public Object visitPrimary(PlayScriptParser.PrimaryContext context) {
         System.out.println(context);
         if (!Objects.isNull(context.IDENTIFIER())) {
-            return variableMap.get(context.IDENTIFIER().getText());
+            return getVariableValue(context.IDENTIFIER().getText());
         }
         if (context.children.size() >= 3) {
             return visitExpression(context.expression());
@@ -207,21 +263,21 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
                 case PlayScriptParser.ASSIGN:
                     String variableName = ctx.expression(0).primary().IDENTIFIER().getText();
                     right = this.visitExpression(ctx.expression(1));
-                    variableMap.put(variableName, right);
+                    putVariable(right, variableName);
                     return right;
                 case PlayScriptParser.ADD_ASSIGN:
                     variableName = ctx.expression(0).primary().IDENTIFIER().getText();
-                    Integer value = (Integer) variableMap.get(variableName);
+                    Integer value = (Integer) getVariableValue(variableName);
                     right = this.visitExpression(ctx.expression(1));
-                    variableMap.put(variableName, value + (Integer) right);
+                    putVariable(value + (Integer) right, variableName);
 
-                    return variableMap.get(variableName);
+                    return getVariableValue(variableName);
 
                 case PlayScriptParser.INC:
                     variableName = ctx.expression(0).primary().IDENTIFIER().getText();
-                    value = (Integer) variableMap.get(variableName);
-                    variableMap.put(variableName, value + 1);
-                    return variableMap.get(variableName);
+                    value = (Integer) getVariableValue(variableName);
+                    putVariable(value + 1, variableName);
+                    return getVariableValue(variableName);
                 default:
                     throw new RuntimeException("not support for " + ctx.bop.getType());
             }
@@ -230,14 +286,14 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
             switch (ctx.postfix.getType()) {
                 case PlayScriptParser.INC:
                     String variableName = ctx.expression(0).primary().IDENTIFIER().getText();
-                    Integer value = (Integer) variableMap.get(variableName);
-                    variableMap.put(variableName, value + 1);
-                    return variableMap.get(variableName);
+                    Integer value = (Integer) getVariableValue(variableName);
+                    putVariable(value + 1, variableName);
+                    return getVariableValue(variableName);
                 case PlayScriptParser.DEC:
                     variableName = ctx.expression(0).primary().IDENTIFIER().getText();
-                    value = (Integer) variableMap.get(variableName);
-                    variableMap.put(variableName, value - 1);
-                    return variableMap.get(variableName);
+                    value = (Integer) getVariableValue(variableName);
+                    putVariable(value - 1, variableName);
+                    return getVariableValue(variableName);
             }
 
         }
@@ -247,7 +303,11 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
     @Override
     public Object visitProg(PlayScriptParser.ProgContext ctx) {
         System.out.println(ctx);
-        return visitBlockStatements(ctx.blockStatements());
+        push(new StackFrame(new BlockScope(null, ctx)));
+        Object result = visitBlockStatements(ctx.blockStatements());
+        pop();
+
+        return result;
     }
 
     @Override

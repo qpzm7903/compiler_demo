@@ -116,7 +116,7 @@ public class StatementTest {
         @DisplayName("simple-if-else -> if(10>100){100+100}else{300+300;}")
         @Test
         void test_simple_if_else_if() {
-            String script = "if(10>100){100+100}else{300+300;}";
+            String script = "if(10>100){100+100;}else{300+300;}";
             Object evaluate = simpleCalculator.evaluate(script);
             Assertions.assertThat(evaluate).isEqualTo(600);
         }
@@ -140,6 +140,19 @@ public class StatementTest {
             String script = "int a = 0; while(a<10){a++;}";
             Object evaluate = simpleCalculator.evaluate(script);
             Assertions.assertThat(evaluate).isEqualTo(10);
+        }
+    }
+
+    @Nested
+    class TestForScope {
+        @Test
+        void test_simple_for_statement_scope() {
+            Assertions.assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> {
+
+                String script = "int age = 44; for(int i = 0;i<10;i++) { age = age + 2;} i+10;";
+                Object evaluate = simpleCalculator.evaluate(script);
+                Assertions.assertThat(evaluate).isEqualTo(8);
+            });
         }
     }
 
