@@ -40,11 +40,6 @@ public class ParserDemo {
     }
 
     @Test
-    void test_visitor() {
-        evaluate("int a = 10;");
-    }
-
-    @Test
     void test() {
         String script = "int a = 10;";
         ANTLRInputStream input = new ANTLRInputStream(script);

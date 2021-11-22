@@ -21,22 +21,22 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
     private final Stack<StackFrame> stack = new Stack<>();
     private final Map<String, Function> functionMap = new HashMap<>();
 
-    private void push(StackFrame frame) {
+    private void push(StackFrame currentFrame) {
         if (stack.size() > 0) {
             for (StackFrame stackFrame : stack) {
-                if (stackFrame.getScope().getScope() == frame.getScope().getScope()) {
-                    frame.setParentFrame(stackFrame.getParentFrame());
+                if (stackFrame.getScope().getScope() == currentFrame.getScope().getScope()) {
+                    currentFrame.setParentFrame(stackFrame.getParentFrame());
                     break;
-                } else if (stackFrame.getScope() == frame.getScope().getScope()) {
-                    frame.setParentFrame(stackFrame);
+                } else if (stackFrame.getScope() == currentFrame.getScope().getScope()) {
+                    currentFrame.setParentFrame(stackFrame);
                     break;
                 }
             }
-            if (frame.getParentFrame() == null) {
-                frame.setParentFrame(this.stack.peek());
+            if (currentFrame.getParentFrame() == null) {
+                currentFrame.setParentFrame(this.stack.peek());
             }
         }
-        this.stack.push(frame);
+        this.stack.push(currentFrame);
     }
 
     void pop() {
@@ -125,8 +125,7 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
     @Override
     public Object visitBlock(PlayScriptParser.BlockContext ctx) {
 
-        StackFrame stackFrame = new StackFrame(new BlockScope(null, ctx));
-        push(stackFrame);
+        push(new StackFrame(new BlockScope(null, ctx)));
         Object result = visitBlockStatements(ctx.blockStatements());
         pop();
         return result;
@@ -339,8 +338,7 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
 
     @Override
     public Object visitFunctionCall(PlayScriptParser.FunctionCallContext ctx) {
-        StackFrame stackFrame = new StackFrame(new BlockScope(null, ctx));
-        push(stackFrame);
+        push(new StackFrame(new BlockScope(null, ctx)));
         TerminalNode functionName = ctx.IDENTIFIER();
         Function function = functionMap.get(functionName.getText());
         List<PlayScriptParser.ExpressionContext> expression = ctx.expressionList().expression();

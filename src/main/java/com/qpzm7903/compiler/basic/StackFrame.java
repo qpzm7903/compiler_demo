@@ -31,5 +31,13 @@ public class StackFrame {
         this.object = new PlayObject();
     }
 
-
+    @Override
+    public String toString() {
+        return "StackFrame{" +
+                "scope=" + scope +
+                ", parentFrame=" + parentFrame +
+                ", object=" + object +
+                ", variables=" + variables +
+                '}';
+    }
 }
