@@ -21,7 +21,7 @@ public class Symbol {
 
     protected int visibility = 0;
 
-    protected ParserRuleContext context;
+    protected ParserRuleContext ctx;
 
     public String getName() {
         return name;

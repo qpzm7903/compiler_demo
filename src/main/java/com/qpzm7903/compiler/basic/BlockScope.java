@@ -19,7 +19,7 @@ public class BlockScope extends Scope {
     public BlockScope(Scope scope, ParserRuleContext context) {
         this.name = "block" + index++;
         this.scope = scope;
-        this.context = context;
+        this.ctx = context;
     }
 
     @Override

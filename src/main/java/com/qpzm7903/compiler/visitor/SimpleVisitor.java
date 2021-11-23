@@ -347,7 +347,7 @@ public class SimpleVisitor extends PlayScriptBaseVisitor<Object> {
             Object value = visitExpression(expressionContext);
             paramValues.add(value);
         }
-        PlayScriptParser.FunctionDeclarationContext context = (PlayScriptParser.FunctionDeclarationContext) function.getContext();
+        PlayScriptParser.FunctionDeclarationContext context = (PlayScriptParser.FunctionDeclarationContext) function.getCtx();
 
         for (int i = 0; i < context.formalParameters().formalParameterList().formalParameter().size(); i++) {
             PlayScriptParser.FormalParameterContext formalParameterContext = context.formalParameters().formalParameterList().formalParameter(i);

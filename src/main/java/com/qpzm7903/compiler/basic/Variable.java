@@ -13,7 +13,7 @@ public class Variable extends Symbol {
     protected Object defaultValue;
 
     public Variable(Type type, Object defaultValue, ParserRuleContext context) {
-        this.context = context;
+        this.ctx = context;
         this.type = type;
         this.defaultValue = defaultValue;
     }

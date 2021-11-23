@@ -12,7 +12,7 @@ import java.util.Set;
  * @author qpzm7903
  * @since 2021-11-16-7:52
  */
-public class Function extends Scope {
+public class Function extends Scope implements FunctionType {
     protected List<Variable> parameters = new LinkedList<>();
 
     protected Type returnType;
@@ -24,7 +24,7 @@ public class Function extends Scope {
     public Function(String name, Scope scope, ParserRuleContext context) {
         this.name = name;
         this.scope = scope;
-        this.context = context;
+        this.ctx = context;
     }
 
     public boolean paramTypesMatch(List<Type> paramTypes) {
@@ -37,5 +37,25 @@ public class Function extends Scope {
             }
         }
         return true;
+    }
+
+    @Override
+    public Type getReturnType() {
+        return null;
+    }
+
+    @Override
+    public List<Type> getParamTypes() {
+        return null;
+    }
+
+    @Override
+    public boolean matchParameterTypes(List<Type> paramTypes) {
+        return false;
+    }
+
+    @Override
+    public boolean isType(Type type) {
+        return false;
     }
 }
