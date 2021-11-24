@@ -17,4 +17,10 @@ public class Variable extends Symbol {
         this.type = type;
         this.defaultValue = defaultValue;
     }
+
+    public Variable(String name, Scope scope, ParserRuleContext context) {
+        this.name = name;
+        this.scope = scope;
+        this.ctx = context;
+    }
 }

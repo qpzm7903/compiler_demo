@@ -4,6 +4,7 @@ import com.qpzm7903.compiler.antlr4.PlayScriptLexer;
 import com.qpzm7903.compiler.antlr4.PlayScriptParser;
 import com.qpzm7903.compiler.basic.AnnotatedTree;
 import com.qpzm7903.compiler.basic.TypeAndScopeScanner;
+import com.qpzm7903.compiler.basic.TypeResolver;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -26,6 +27,20 @@ class TypeAndScopeScannerTest {
         ParseTreeWalker walker = new ParseTreeWalker();
         AnnotatedTree at = new AnnotatedTree();
         walker.walk(new TypeAndScopeScanner(at), prog);
+        walker.walk(new TypeResolver(at, true), prog);
+    }
+
+    @Test
+    void test_func() {
+        String script = "int myfunc(int a) {return a+3;}";
+        PlayScriptLexer playScriptLexer = new PlayScriptLexer(CharStreams.fromString(script));
+        CommonTokenStream tokens = new CommonTokenStream(playScriptLexer);
+        PlayScriptParser playScriptParser = new PlayScriptParser(tokens);
+        PlayScriptParser.ProgContext prog = playScriptParser.prog();
+        ParseTreeWalker walker = new ParseTreeWalker();
+        AnnotatedTree at = new AnnotatedTree();
+        walker.walk(new TypeAndScopeScanner(at), prog);
+        walker.walk(new TypeResolver(at, true), prog);
     }
 
 }

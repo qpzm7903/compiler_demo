@@ -4,6 +4,7 @@ import com.qpzm7903.compiler.antlr4.PlayScriptBaseListener;
 import com.qpzm7903.compiler.antlr4.PlayScriptParser;
 import org.antlr.v4.runtime.ParserRuleContext;
 
+import java.util.Objects;
 import java.util.Stack;
 
 /**
@@ -62,7 +63,7 @@ public class TypeAndScopeScanner extends PlayScriptBaseListener {
             return;
         }
         BlockScope scope = new BlockScope(currentScope(), ctx);
-        currentScope().addSymbol(scope);
+        Objects.requireNonNull(currentScope()).addSymbol(scope);
         pushScope(scope, ctx);
     }
 
@@ -80,7 +81,7 @@ public class TypeAndScopeScanner extends PlayScriptBaseListener {
         //为for建立额外的Scope
         if (ctx.FOR() != null) {
             BlockScope scope = new BlockScope(currentScope(), ctx);
-            currentScope().addSymbol(scope);
+            Objects.requireNonNull(currentScope()).addSymbol(scope);
             pushScope(scope, ctx);
         }
     }
@@ -102,7 +103,7 @@ public class TypeAndScopeScanner extends PlayScriptBaseListener {
 
         at.types.add(function);
 
-        currentScope().addSymbol(function);
+        Objects.requireNonNull(currentScope()).addSymbol(function);
 
         // 创建一个新的scope
         pushScope(function, ctx);

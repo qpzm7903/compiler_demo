@@ -20,7 +20,7 @@ public abstract class Scope extends Symbol {
     }
 
     protected Variable getVariable(String name) {
-        for (Symbol symbol : scope.symbols) {
+        for (Symbol symbol : symbols) {
             if (symbol instanceof Variable && symbol.name.equals(name)) {
                 return (Variable) symbol;
             }

@@ -46,7 +46,15 @@ public class Function extends Scope implements FunctionType {
 
     @Override
     public List<Type> getParamTypes() {
-        return null;
+        if (paramTypes == null) {
+            paramTypes = new LinkedList<>();
+        }
+
+        for (Variable param : parameters) {
+            paramTypes.add(param.type);
+        }
+
+        return paramTypes;
     }
 
     @Override
