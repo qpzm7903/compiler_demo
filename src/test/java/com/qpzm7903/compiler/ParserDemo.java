@@ -1,13 +1,11 @@
 package com.qpzm7903.compiler;
 
-import com.qpzm7903.compiler.antlr4.PlayScriptBaseListener;
 import com.qpzm7903.compiler.antlr4.PlayScriptLexer;
 import com.qpzm7903.compiler.antlr4.PlayScriptParser;
 import com.qpzm7903.compiler.visitor.SimpleVisitor;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.jupiter.api.Test;
 
 /**
